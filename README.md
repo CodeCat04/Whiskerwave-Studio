@@ -46,7 +46,7 @@ audio.cpp itself is not vendored.
 
 - The Whiskerwave Python server and browser GUI.
 - Vendored SpessaSynth browser runtime and GeneralUser GS SoundFont for offline
-  MIDI monitoring—no npm installation is needed.
+  MIDI monitoring no npm installation is needed.
 - Interactive Windows install, model-management, update, and launch scripts.
 - One example output: **Nine Lives in Production**, a Eurobeat song about a
   software-engineer cat. No other generated or downloaded songs are included.
