@@ -1,0 +1,31 @@
+{
+  "id": "nine-lives-in-production",
+  "title": "Nine Lives in Production",
+  "created_at": "2026-01-01T00:00:00+00:00",
+  "style": "English, Eurobeat, playful high-energy night-drive mood, 155 BPM, driving four-on-the-floor kick, galloping synth bass, bright saw-lead arpeggios, distorted rhythm guitar, agile confident tenor vocal, stacked shout harmonies, dramatic risers, glossy wide 1990s dance mix",
+  "lyrics": "[Intro]\nGreen lights, blue screen\nShip it like a midnight dream\n\n[Verse]\nPaws on the keyboard, moon in the glass\nChasing down a bug and I'm moving fast\nCoffee went cold but the build runs clean\nLittle black cat in a coding machine\n\n[Pre-Chorus]\nOne more function, one more sign\nEvery warning turns to green in time\n\n[Chorus]\nVibe code, ride the neon line\nNine lives running and the night is mine\nPush to production, hear that engine purr\nFast little changes in a digital blur\nVibe code, no looking back\nTail in the air on a midnight track\n\n[Verse]\nRubber-duck talking to the dashboard glow\nI don't know the road, but the instincts know\nTests all passing as the sunrise starts\nShipping tiny miracles in modular parts\n\n[Pre-Chorus]\nOne more function, one more sign\nEvery warning turns to green in time\n\n[Chorus]\nVibe code, ride the neon line\nNine lives running and the night is mine\nPush to production, hear that engine purr\nFast little changes in a digital blur\nVibe code, no looking back\nTail in the air on a midnight track\n\n[Bridge]\nIf the server falls, I land on my feet\nPatch the broken rhythm, bring it back on beat\n\n[Chorus]\nVibe code, ride the neon line\nNine lives running and the night is mine\nPush to production, hear that engine purr\nFast little changes in a digital blur\nVibe code, no looking back\nTail in the air on a midnight track\n\n[Outro]\nGreen lights, blue screen\nShip it like a midnight dream",
+  "cot": "melody",
+  "seed": 210687150,
+  "seed_mode": "fixed",
+  "model_id": "yue2-bf16",
+  "model_label": "YuE2-3B BF16 - Maximum fidelity",
+  "generation_preset": "default",
+  "options": {
+    "style": "English, Eurobeat, playful high-energy night-drive mood, 155 BPM, driving four-on-the-floor kick, galloping synth bass, bright saw-lead arpeggios, distorted rhythm guitar, agile confident tenor vocal, stacked shout harmonies, dramatic risers, glossy wide 1990s dance mix",
+    "cot": "melody",
+    "cfg_scale": 1.0,
+    "num_inference_steps": 32,
+    "semantic_temperature": 1.0,
+    "semantic_top_p": 0.95,
+    "semantic_top_k": 100,
+    "semantic_max_tokens": 9000,
+    "abc_temperature": 0.7,
+    "abc_top_p": 0.9,
+    "abc_top_k": 30,
+    "abc_max_tokens": 4096
+  },
+  "duration_seconds": 176.64,
+  "audio_url": "/outputs/nine-lives-in-production/audio.wav",
+  "starred": false,
+  "included_example": true
+}

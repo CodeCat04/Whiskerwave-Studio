@@ -1,0 +1,28 @@
+# Downloaded/build dependencies
+audio.cpp/
+studio/.venv-sheetsage2/
+
+# Local runtime and user-created libraries
+studio/runtime/
+lyrics/
+transcriptions/
+official-yue2-examples/
+outputs/*/
+!outputs/nine-lives-in-production/
+!outputs/nine-lives-in-production/audio.wav
+!outputs/nine-lives-in-production/metadata.json
+
+# Python/editor/OS noise
+__pycache__/
+*.py[cod]
+.venv/
+.vs/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Interrupted downloads
+*.part
+

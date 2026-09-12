@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Whiskerwave Studio</title>
+  <link rel="stylesheet" href="/style.css?v=8">
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="topbar">
+    <div class="topbar-main">
+      <a class="brand" href="/" aria-label="Whiskerwave Studio home">
+        <img class="cat-logo" src="/smoking-jazz-cat.svg?v=3" alt="" width="42" height="42">
+        <span class="brand-mark"><i></i><i></i><i></i><i></i></span>
+        <span class="brand-name"><b>Whiskerwave</b><small>STUDIO</small></span>
+      </a>
+      <div class="system-strip">
+        <span id="engine-status" class="status-pill"><i></i> Connecting</span>
+        <span id="gpu-status" class="gpu-label">CUDA</span>
+        <button id="unload-button" class="quiet-button" type="button" title="Unload model weights from VRAM">Free VRAM</button>
+      </div>
+    </div>
+    <nav class="tab-nav" aria-label="Studio areas">
+      <button class="tab-button active" type="button" data-tab="compose">Compose</button>
+      <button class="tab-button" type="button" data-tab="assistant">Lyric Assistant</button>
+      <button class="tab-button" type="button" data-tab="transcribe">Transcribe / Remix</button>
+      <button class="tab-button" type="button" data-tab="guide">Guide</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="compose-page" class="tab-page">
+    <section class="hero tab-intro minimized" id="compose-hero">
+      <div class="hero-toolbar"><p class="eyebrow">LOCAL MUSIC GENERATION</p><button class="quiet-button intro-toggle" type="button" data-intro="compose-hero" aria-expanded="false">Show intro</button></div>
+      <h1>Shape the score.<br><em>Hear the record.</em></h1>
+      <p>Lyrics and direction become an editable musical plan, then a complete 48 kHz stereo performance—entirely on this machine.</p>
+    </section>
+
+    <div class="workspace">
+      <form id="generate-form" class="composer panel">
+        <div class="panel-heading">
+          <div><span class="step">01</span><h2>Compose</h2></div>
+          <div class="panel-heading-actions"><button id="clear-compose" class="quiet-button" type="button">Clear inputs</button><button id="example-button" class="text-button" type="button">Load example</button></div>
+        </div>
+
+        <label for="title">Title <button class="info-button" type="button" data-info="title" aria-label="About song title">i</button><span>optional</span></label>
+        <input id="title" name="title" maxlength="100" placeholder="Untitled session">
+
+        <label for="yue-model">YuE2 model profile <button class="info-button" type="button" data-info="model" aria-label="About model profiles">i</button></label>
+        <select id="yue-model" required><option value="yue2-q8">YuE2-3B Q8 · Balanced</option><option value="yue2-bf16">YuE2-3B BF16 · Maximum fidelity</option><option value="yue2-q4">YuE2-3B Q4 · Compact</option></select>
+        <p id="model-description" class="field-help">One YuE2-3B checkpoint is available in several precision profiles.</p>
+
+        <label for="style">Sound direction <button class="info-button" type="button" data-info="style" aria-label="About sound direction">i</button><span id="style-count">0 / 2000</span></label>
+        <textarea id="style" name="style" rows="3" maxlength="2000" required placeholder="English, dream pop, glassy guitars, analog synths, intimate female vocal, 112 BPM, spacious polished mix"></textarea>
+        <p class="field-help isolation-note">Only the visible Sound direction and Lyrics boxes are sent to YuE2. Lyric Assistant notes and prior chats are never included.</p>
+
+        <div class="label-row">
+          <label for="lyrics">Lyrics <button class="info-button" type="button" data-info="lyrics" aria-label="About lyrics">i</button><span id="lyrics-count">0 characters</span></label>
+          <div class="tag-buttons" aria-label="Insert song section">
+            <button type="button" data-section="Verse">+ Verse</button>
+            <button type="button" data-section="Chorus">+ Chorus</button>
+            <button type="button" data-section="Bridge">+ Bridge</button>
+            <button type="button" data-section="Instrumental">+ Instrumental</button>
+          </div>
+        </div>
+        <textarea id="lyrics" name="lyrics" class="lyrics" rows="15" maxlength="30000" required placeholder="[Verse]&#10;Write each section on its own...&#10;&#10;[Chorus]&#10;Give the hook room to breathe..."></textarea>
+
+        <fieldset class="mode-fieldset">
+          <legend>Planning mode <button class="info-button" type="button" data-info="planning" aria-label="About planning modes">i</button></legend>
+          <div class="mode-grid">
+            <label><input type="radio" name="cot" value="full" checked><span><b>Full plan</b><small>Melody + chords</small></span></label>
+            <label><input type="radio" name="cot" value="melody"><span><b>Melody</b><small>Flexible harmony</small></span></label>
+            <label><input type="radio" name="cot" value="off"><span><b>Direct</b><small>No written score</small></span></label>
+          </div>
+        </fieldset>
+
+        <div class="quick-preset">
+          <label for="generation-preset">Generation preset <button class="info-button" type="button" data-info="preset" aria-label="About generation presets">i</button></label>
+          <select id="generation-preset"><option value="default" selected>Default · Recommended</option><option value="controlled">Controlled · More consistent</option><option value="semi">Semi-creative · More variation</option><option value="very">Very creative · Maximum variation</option><option value="draft">Draft · Faster preview</option><option value="custom">Custom · Manually edited</option></select>
+          <span id="preset-summary">Recommended baseline</span>
+        </div>
+
+        <details class="drawer" id="score-drawer">
+          <summary><span>ABC score conditioning <button class="info-button" type="button" data-info="abc" aria-label="About ABC score conditioning">i</button></span><small>Optional · Melody or Full mode</small></summary>
+          <div class="drawer-body">
+            <div class="file-row">
+              <input id="abc-file" type="file" accept=".abc,.txt,text/plain">
+              <button id="clear-score" type="button" class="quiet-button">Clear</button>
+            </div>
+            <textarea id="abc" rows="9" placeholder="Paste an ABC score here, or choose a .abc file..."></textarea>
+          </div>
+        </details>
+
+        <details class="drawer">
+          <summary><span>Generation settings <button class="info-button" type="button" data-info="settings" aria-label="About generation settings">i</button></span><small>Defaults are recommended</small></summary>
+          <div class="drawer-body settings-grid">
+            <label>Seed behavior <button class="info-button" type="button" data-info="seed-mode" aria-label="About seed behavior">i</button><span>variation</span><select id="seed-mode"><option value="random" selected>Random every song</option><option value="fixed">Fixed / repeatable</option></select></label>
+            <label id="fixed-seed-field">Seed value <button class="info-button" type="button" data-info="seed" aria-label="About seed values">i</button><span id="seed-use-label">next random seed</span><span class="input-with-button"><input id="seed" type="number" min="0" value="831001" readonly><button id="random-seed" type="button" title="Choose a new seed">↻</button></span></label>
+            <label>Flow steps <button class="info-button" type="button" data-info="steps" aria-label="About flow steps">i</button><span>quality / speed</span><select id="steps"><option value="8">8 · Draft</option><option value="16">16 · Balanced</option><option value="32" selected>32 · Full quality</option></select></label>
+            <label>CFG scale <button class="info-button" type="button" data-info="cfg" aria-label="About CFG scale">i</button><span>prompt strength</span><input id="cfg" type="number" min="0" max="20" step="0.01" value="1.0"></label>
+            <label>Song token limit <button class="info-button" type="button" data-info="semantic-max" aria-label="About song token limit">i</button><span>length ceiling</span><input id="semantic-max" type="number" min="200" max="20000" value="9000"></label>
+            <label>Music temperature <button class="info-button" type="button" data-info="semantic-temp" aria-label="About music temperature">i</button><span>variation</span><input id="semantic-temp" type="number" min="0" max="5" step="0.05" value="1.0"></label>
+            <label>Music top-p <button class="info-button" type="button" data-info="semantic-top-p" aria-label="About music top-p">i</button><span>sampling</span><input id="semantic-top-p" type="number" min="0" max="1" step="0.01" value="0.95"></label>
+            <label>Music top-k <button class="info-button" type="button" data-info="semantic-top-k" aria-label="About music top-k">i</button><span>sampling</span><input id="semantic-top-k" type="number" min="1" max="10000" value="100"></label>
+            <label>Score token limit <button class="info-button" type="button" data-info="abc-max" aria-label="About score token limit">i</button><span>plan ceiling</span><input id="abc-max" type="number" min="32" max="10000" value="4096"></label>
+            <label>Score temperature <button class="info-button" type="button" data-info="abc-temp" aria-label="About score temperature">i</button><span>variation</span><input id="abc-temp" type="number" min="0" max="5" step="0.05" value="0.7"></label>
+            <label>Score top-p <button class="info-button" type="button" data-info="abc-top-p" aria-label="About score top-p">i</button><span>sampling</span><input id="abc-top-p" type="number" min="0" max="1" step="0.01" value="0.9"></label>
+            <label>Score top-k <button class="info-button" type="button" data-info="abc-top-k" aria-label="About score top-k">i</button><span>sampling</span><input id="abc-top-k" type="number" min="1" max="10000" value="30"></label>
+          </div>
+        </details>
+
+        <div id="form-error" class="message error" hidden></div>
+        <button id="generate-button" class="generate-button" type="submit"><span>Add song to queue</span><b>⌁</b></button>
+        <p class="fine-print">The shared queue runs Compose, Lyric Assistant, and Transcribe jobs one at a time.</p>
+      </form>
+
+      <aside class="session panel">
+        <div class="panel-heading"><div><span class="step">02</span><h2>Session</h2></div><span id="timer" class="timer">00:00</span></div>
+        <div id="idle-state" class="idle-state">
+          <div class="record-visual"><div class="record"><div></div></div><span></span></div>
+          <h3>Ready for a take</h3>
+          <p>Write the full lyric before generating. Song length follows the score and lyric structure rather than a duration slider.</p>
+          <ul><li><b>Full plan</b> for original songs</li><li><b>Melody</b> when supplying a tune</li><li><b>Direct</b> for faster experiments</li></ul>
+        </div>
+        <div id="running-state" class="running-state" hidden>
+          <div class="equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <p class="eyebrow">AUDIO.CPP IS WORKING</p>
+          <h3 id="running-title">Rendering your song</h3>
+          <p>Planning → semantic music → acoustic flow → waveform</p>
+          <div class="indeterminate"><i></i></div>
+          <small>Keep this window open. Long songs can take several minutes.</small>
+        </div>
+        <div id="result-state" class="result-state" hidden>
+          <canvas id="waveform" width="760" height="170"></canvas>
+          <p class="eyebrow">LATEST TAKE</p>
+          <h3 id="result-title">Untitled</h3>
+          <p id="result-meta" class="result-meta"></p>
+          <audio id="player" controls preload="metadata"></audio>
+          <div class="result-actions"><a id="download-link" class="download-button" download>Download WAV</a><button id="copy-seed" class="quiet-button" type="button">Copy seed</button></div>
+          <p id="result-style" class="result-style"></p>
+        </div>
+      </aside>
+    </div>
+
+    <section class="library">
+      <div class="section-heading"><div><p class="eyebrow">OUTPUTS</p><h2>Listening room</h2></div><div class="section-actions"><button class="quiet-button open-library" type="button" data-library="output">Open outputs folder</button><button id="refresh-history" class="quiet-button" type="button">Refresh</button></div></div>
+      <div class="listening-toolbar panel">
+        <input id="listening-search" type="search" placeholder="Search title, prompt, lyrics, seed or model…" aria-label="Search Listening room">
+        <select id="listening-filter" aria-label="Filter Listening room"><option value="all">All outputs</option><option value="starred">Starred only</option><option value="unstarred">Unstarred only</option><option value="full">Full plan</option><option value="melody">Melody plan</option><option value="off">Direct generation</option><option value="yue2-q8">Q8 model</option><option value="yue2-bf16">BF16 model</option><option value="yue2-q4">Q4 model</option></select>
+        <select id="listening-sort" aria-label="Sort Listening room"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="starred">Starred first</option><option value="title">Title A–Z</option></select>
+        <span id="listening-count">Loading…</span>
+      </div>
+      <div id="history" class="history-grid"><p class="empty-library">Generated takes will appear here.</p></div>
+    </section>
+    </section>
+
+    <section id="assistant-page" class="tab-page" hidden>
+      <section class="assistant-hero tab-intro minimized" id="assistant-hero">
+        <div class="hero-toolbar"><p class="eyebrow">LOCAL OLLAMA CO-WRITER</p><button class="quiet-button intro-toggle" type="button" data-intro="assistant-hero" aria-expanded="false">Show intro</button></div>
+        <div>
+          <h1>Find the sound.<br><em>Finish the lyric.</em></h1>
+        </div>
+        <p>Turn a rough idea into five distinct genre directions or a complete YuE2-ready song. Your brief stays on this machine.</p>
+      </section>
+
+      <div class="assistant-workspace">
+        <form id="assistant-form" class="panel assistant-brief">
+          <div class="panel-heading">
+            <div><span class="step">A1</span><h2>Creative brief</h2></div>
+            <div class="panel-heading-actions"><button id="clear-assistant" class="quiet-button" type="button">Clear inputs</button><span id="ollama-status" class="mini-status">Checking Ollama...</span></div>
+          </div>
+
+          <label for="ollama-model">Writing model</label>
+          <select id="ollama-model" required><option value="">Loading installed models...</option></select>
+
+          <label for="song-brief">What is the song about? <span id="assistant-brief-count">0 / 30,000</span></label>
+          <textarea id="song-brief" rows="7" maxlength="30000" required placeholder="A late-night drive away from a hometown, relieved but uncertain. First person, vivid desert imagery, hopeful rather than bitter."></textarea>
+
+          <details class="drawer assistant-context-drawer">
+            <summary><span>Writing guide / reference context</span><small id="assistant-context-count">0 / 120,000</small></summary>
+            <div class="drawer-body">
+              <p class="field-help">Paste long style guides, character notes, worldbuilding, examples, rhyme rules, or other source material here. It stays separate from the final lyrics and sound direction.</p>
+              <textarea id="assistant-context" rows="10" maxlength="120000" placeholder="Paste your complete writing guide or reference material here..."></textarea>
+              <p class="field-help context-budget-note">Ollama context automatically scales from 8K up to 64K tokens. Extremely dense material can still exceed the selected model's own context capability.</p>
+            </div>
+          </details>
+
+          <div class="assistant-fields">
+            <label>Language<input id="assistant-language" maxlength="100" value="English" placeholder="English"></label>
+            <label>Target length<select id="assistant-length"><option value="short">Short</option><option value="standard" selected>Standard</option><option value="long">Long</option></select></label>
+          </div>
+
+          <label for="assistant-vocals">Vocal direction <span>optional</span></label>
+          <input id="assistant-vocals" maxlength="1000" placeholder="Warm low alto, restrained verses, soaring chorus">
+
+          <label for="assistant-direction">Selected sound direction <span>optional · always visible</span></label>
+          <textarea id="assistant-direction" rows="3" maxlength="2000" placeholder="Choose a suggested direction, paste one, or leave blank for a fresh choice."></textarea>
+
+          <div class="assistant-fields">
+            <label>Must include<input id="assistant-must" maxlength="3000" placeholder="A line about mile marker 9"></label>
+            <label>Avoid<input id="assistant-avoid" maxlength="3000" placeholder="Cliches, perfect rhymes"></label>
+          </div>
+
+          <div id="assistant-error" class="message error" hidden></div>
+          <div class="assistant-actions">
+            <button id="surprise-button" class="quiet-button surprise-button" type="button"><span>✦</span> Queue Creative Brief</button>
+            <button id="complete-surprise-button" class="generate-button compact complete-surprise-button" type="button"><span>Complete Surprise</span><b>✦</b></button>
+            <button id="brainstorm-button" class="quiet-button" type="button">Queue 5 directions</button>
+            <button id="draft-button" class="generate-button compact" type="submit"><span>Queue full song</span><b>&#8993;</b></button>
+          </div>
+          <p class="field-help surprise-help"><b>Creative Brief</b> fills only missing brief fields for review. <b>Complete Surprise</b> respects anything supplied, invents everything missing, and writes the complete song immediately.</p>
+          <p class="fine-print">Ollama is released from VRAM after every answer so YuE2 can generate cleanly.</p>
+        </form>
+
+        <section class="panel assistant-output" aria-live="polite">
+          <div class="panel-heading">
+            <div><span class="step">A2</span><h2>Writer's room</h2></div>
+            <span id="assistant-timer" class="timer">00:00</span>
+          </div>
+
+          <div id="assistant-empty" class="assistant-empty">
+            <span class="idea-mark">Aa</span>
+            <h3>Start with the idea</h3>
+            <p>Explore genres first, or let the assistant make a complete creative choice. Everything remains editable.</p>
+          </div>
+
+          <div id="assistant-running" class="assistant-running" hidden>
+            <div class="thinking-orbit"><i></i><i></i><i></i></div>
+            <p class="eyebrow">OLLAMA IS WRITING</p>
+            <h3 id="assistant-running-label">Developing directions</h3>
+            <p>Shaping structure, meter, hook, vocal character, and a clean YuE2 prompt.</p>
+          </div>
+
+          <div id="direction-results" hidden>
+            <p class="output-kicker">CHOOSE A DIRECTION</p>
+            <div id="direction-list" class="direction-list"></div>
+            <p class="selection-help">Pick one, then use <b>Write full song</b> in the brief panel.</p>
+          </div>
+
+          <div id="song-result" hidden>
+            <p class="output-kicker">EDITABLE DRAFT</p>
+            <label for="assistant-title">Title</label>
+            <input id="assistant-title" maxlength="100">
+            <label for="assistant-style">YuE2 sound direction</label>
+            <textarea id="assistant-style" rows="4" maxlength="2000"></textarea>
+            <label for="assistant-lyrics">Formatted lyrics</label>
+            <textarea id="assistant-lyrics" class="lyrics" rows="20" maxlength="30000"></textarea>
+            <p id="assistant-notes" class="assistant-notes"></p>
+            <div class="revision-box">
+              <label for="revision-request">Ask for a revision <span id="assistant-revision-count">0 / 30,000</span></label>
+              <div><textarea id="revision-request" rows="4" maxlength="30000" placeholder="Make verse two more concrete and tighten the hook"></textarea><button id="revise-button" type="button" class="quiet-button">Queue revision</button></div>
+            </div>
+            <button id="use-song-button" class="generate-button" type="button"><span>Use in Compose</span><b>&#8594;</b></button>
+          </div>
+        </section>
+      </div>
+
+      <section class="library lyric-library">
+        <div class="section-heading"><div><p class="eyebrow">SAVED WRITING</p><h2>Lyrics library</h2></div><div class="section-actions"><button class="quiet-button open-library" type="button" data-library="lyrics">Open lyrics folder</button><button id="refresh-lyrics" class="quiet-button" type="button">Refresh</button></div></div>
+        <div id="lyrics-history" class="history-grid"><p class="empty-library">Completed lyric drafts will appear here.</p></div>
+      </section>
+    </section>
+
+    <section id="transcribe-page" class="tab-page transcribe-page" hidden>
+      <section class="assistant-hero transcribe-hero tab-intro minimized" id="transcribe-hero">
+        <div class="hero-toolbar"><p class="eyebrow">LOCAL AUDIO-TO-SCORE</p><button class="quiet-button intro-toggle" type="button" data-intro="transcribe-hero" aria-expanded="false">Show intro</button></div>
+        <div><h1>Hear the song.<br><em>Keep its composition.</em></h1></div>
+        <p>SheetSage2 turns a recording directly into the editable vocal melody, instrumental melody, chords, beats, key, and structure YuE2 expects.</p>
+      </section>
+
+      <div class="transcription-workspace">
+        <form id="transcription-form" class="panel transcription-controls">
+          <div class="panel-heading"><div><span class="step">T1</span><h2>Transcribe recording</h2></div><div class="panel-heading-actions"><button id="clear-transcription" class="quiet-button" type="button">Clear inputs</button><span id="transcription-model-status" class="mini-status">Checking model...</span></div></div>
+          <label>Transcription model</label>
+          <p><b>SheetSage2</b> · YuE2 lead sheet</p>
+          <p id="transcription-model-help" class="field-help">Best for remixes: creates YuE2-ready ABC directly instead of approximating it from MIDI notes.</p>
+          <label class="audio-drop" for="transcription-file">
+            <input id="transcription-file" type="file" accept="audio/*,.m4a,.wma,.mp4" required>
+            <b>Choose an audio file</b>
+            <span id="transcription-file-name">WAV, MP3, FLAC, OGG, M4A, AAC, WMA, WEBM, or MP4; maximum 500 MB</span>
+          </label>
+          <div id="sheetsage-options" class="transcription-options">
+            <label for="score-content">Score content</label>
+            <select id="score-content"><option value="melody" selected>Melody only · Best for genre remixes</option><option value="full">Full lead sheet · Preserve melody and chords</option></select>
+            <p class="field-help"><b>Melody only</b> keeps vocal and instrumental tunes while allowing YuE2 to reharmonize them. <b>Full lead sheet</b> also anchors the original chords.</p>
+          </div>
+          <div id="transcription-error" class="message error" hidden></div>
+          <button id="transcribe-button" class="generate-button" type="submit"><span>Add transcription to queue</span><b>♪</b></button>
+          <p id="transcription-runtime-note" class="fine-print">SheetSage2 + MERT2 FullSong · local BF16 CUDA · files stay local</p>
+          <p class="legal-note">Only transcribe material you have the right to use. A transcription does not grant remix or distribution rights.</p>
+        </form>
+
+        <section class="panel transcription-output">
+          <div class="panel-heading"><div><span class="step">T2</span><h2>Score desk</h2></div><span id="transcription-timer" class="timer">00:00</span></div>
+          <div id="transcription-empty" class="assistant-empty"><div class="idea-mark">♫</div><h3>Ready to listen</h3><p>Upload a complete mix or isolated instrument. Steady-tempo recordings produce cleaner note timing.</p></div>
+          <div id="transcription-running" class="assistant-running" hidden><div class="thinking-orbit"><i></i><i></i><i></i></div><p id="transcription-running-kicker" class="eyebrow">SHEETSAGE2 IS LISTENING</p><h3>Finding melody, harmony, and form</h3><p>Complete songs may take several minutes; the model processes them in overlapping windows.</p></div>
+          <div id="transcription-result" hidden>
+            <p class="output-kicker">LATEST TRANSCRIPTION</p>
+            <h3 id="transcription-title">Untitled</h3>
+            <p id="transcription-meta" class="result-meta"></p>
+            <div id="transcription-player" class="comparison-player">
+              <audio id="transcription-source" preload="metadata"></audio>
+              <div class="comparison-transport">
+                <button id="comparison-play" class="comparison-play" type="button" aria-label="Play comparison">▶</button>
+                <span id="comparison-current">0:00</span>
+                <input id="comparison-seek" type="range" min="0" max="0" step="0.01" value="0" aria-label="Playback position">
+                <span id="comparison-duration">0:00</span>
+              </div>
+              <div class="comparison-mixer">
+                <div class="comparison-side original"><span>ORIGINAL</span><b id="comparison-original-amount">25%</b></div>
+                <input id="comparison-mix" type="range" min="0" max="100" step="1" value="75" aria-label="Original to MIDI mix">
+                <div class="comparison-side midi"><span>MIDI</span><b id="comparison-midi-amount">75%</b></div>
+              </div>
+              <label class="stereo-control" for="comparison-stereo">
+                <input id="comparison-stereo" type="checkbox">
+                <span class="toggle-track" aria-hidden="true"><i></i></span>
+                <span><b>Stereo A/B</b><small>Original in the left ear · synthesized MIDI in the right</small></span>
+              </label>
+              <p id="comparison-status" class="comparison-status" data-state="loading">Preparing comparison player…</p>
+            </div>
+            <div class="transcription-downloads"><a id="transcription-midi" class="download-button" download>Download MIDI</a><a id="transcription-events" class="quiet-button" download>Timed events JSON</a><a id="transcription-abc-download" class="quiet-button" download>Download ABC</a></div>
+            <label for="transcription-abc">YuE2 score <span>editable upstream ABC</span></label>
+            <textarea id="transcription-abc" class="lyrics" rows="16" spellcheck="false"></textarea>
+            <p class="field-help isolation-note">SheetSage2 writes this ABC directly from its shared timeline of beats, key, sections, chords, and vocal/instrumental melodies. You can still edit it before generation.</p>
+            <button id="use-transcription" class="generate-button" type="button"><span>Use score for remix in Compose</span><b>→</b></button>
+          </div>
+        </section>
+      </div>
+
+      <section class="library transcription-library">
+        <div class="section-heading"><div><p class="eyebrow">SAVED LOCALLY</p><h2>Transcription library</h2></div><div class="section-actions"><button class="quiet-button open-library" type="button" data-library="transcription">Open transcriptions folder</button><button id="refresh-transcriptions" class="quiet-button" type="button">Refresh</button></div></div>
+        <div id="transcription-history" class="history-grid"><p class="empty-library">Completed transcriptions will appear here.</p></div>
+      </section>
+    </section>
+
+    <section id="guide-page" class="tab-page guide-page" hidden>
+      <section class="assistant-hero guide-hero tab-intro minimized" id="guide-hero">
+        <div class="hero-toolbar"><p class="eyebrow">YUE2 PLAYBOOK</p><button class="quiet-button intro-toggle" type="button" data-intro="guide-hero" aria-expanded="false">Show intro</button></div>
+        <div><h1>A repeatable path<br><em>to better songs.</em></h1></div>
+        <p>This local SOP distills the official YuE2 model card, audio.cpp examples, and the 99-entry public genre catalog into practical controls and reusable prompts.</p>
+      </section>
+
+      <nav class="guide-jump panel" aria-label="Guide sections">
+        <a href="#guide-sop">Quick SOP</a><a href="#guide-models">Models</a><a href="#guide-genres">70 genres</a><a href="#guide-examples">Examples</a><a href="#guide-prompts">Prompt recipes</a><a href="#guide-troubleshooting">Troubleshooting</a>
+      </nav>
+
+      <section id="guide-sop" class="guide-section">
+        <div class="guide-section-head"><span class="step">G1</span><div><p class="eyebrow">START HERE</p><h2>Quick SOP</h2></div></div>
+        <div class="sop-grid">
+          <article class="panel sop-card"><b>01</b><h3>Write the whole lyric</h3><p>Use explicit section headers. Keep production notes in Sound direction, not inside lyrical lines.</p></article>
+          <article class="panel sop-card"><b>02</b><h3>Describe the recording</h3><p>Language → genre → mood → tempo → instruments → vocal → production. Specific traits beat a pile of genre names.</p></article>
+          <article class="panel sop-card"><b>03</b><h3>Start with Q8 + Full</h3><p>Q8 is the recommended profile. Full planning writes melody and chords before synthesis and is the normal choice for original songs.</p></article>
+          <article class="panel sop-card"><b>04</b><h3>Randomize first</h3><p>Use Random seed while exploring. Fix the seed only when comparing one controlled change or reproducing a take.</p></article>
+          <article class="panel sop-card"><b>05</b><h3>Change one axis</h3><p>For revisions, alter the vocal, tempo, instrumentation, lyric, or seed deliberately. Avoid changing everything at once.</p></article>
+          <article class="panel sop-card"><b>06</b><h3>Keep the winner</h3><p>Every WAV, exact seed, visible prompts, settings, and metadata are saved in the listening room.</p></article>
+        </div>
+      </section>
+
+      <section id="guide-models" class="guide-section">
+        <div class="guide-section-head"><span class="step">G2</span><div><p class="eyebrow">ONE CHECKPOINT, THREE PRECISIONS</p><h2>Which model profile?</h2></div></div>
+        <div class="model-guide-grid">
+          <article class="panel model-guide-card recommended"><span>RECOMMENDED</span><h3>Q8 · Balanced</h3><p>The best default here: official audio.cpp testing reported the fastest long-form run, strong quality, and roughly 8.7 GB peak VRAM.</p><button type="button" class="quiet-button guide-model-button" data-model="yue2-q8">Select Q8</button></article>
+          <article class="panel model-guide-card"><span>MAXIMUM PRECISION</span><h3>BF16 · Full</h3><p>The original-precision main weights paired with the F32 VAE. Largest and slower; use when evaluating whether precision changes a final take.</p><button type="button" class="quiet-button guide-model-button" data-model="yue2-bf16">Select BF16</button></article>
+          <article class="panel model-guide-card"><span>LOWEST VRAM</span><h3>Q4 · Compact</h3><p>Smallest profile at roughly 7.6 GB peak VRAM. Good for drafts; quantization can change length, voice, or musical detail.</p><button type="button" class="quiet-button guide-model-button" data-model="yue2-q4">Select Q4</button></article>
+        </div>
+        <p class="guide-callout">These are not differently trained YuE2 models. They are precision versions of the same approximately 3.6B-parameter YuE2-3B checkpoint. The profile selector also pairs the intended VAE automatically.</p>
+      </section>
+
+      <section id="guide-genres" class="guide-section">
+        <div class="guide-section-head"><span class="step">G3</span><div><p class="eyebrow">OFFICIAL PUBLIC CATALOG</p><h2>70 demonstrated genres</h2></div></div>
+        <div class="genre-toolbar"><input id="genre-search" type="search" placeholder="Filter genres..."><span id="genre-count">70 shown</span></div>
+        <div id="genre-chip-list" class="genre-chip-list"></div>
+        <p class="guide-caption">Click a genre to add it to Sound direction. “Demonstrated” means the official site publishes at least one YuE2 result under that label—not that every seed will be equally strong.</p>
+      </section>
+
+      <section id="guide-examples" class="guide-section">
+        <div class="guide-section-head"><span class="step">G4</span><div><p class="eyebrow">OFFICIAL YUE2 REFERENCE LIBRARY</p><h2>Songs, lyrics, prompts and ABC scores</h2></div></div>
+        <div class="official-example-toolbar panel">
+          <input id="official-example-search" type="search" placeholder="Search title, genre, language or prompt...">
+          <select id="official-example-filter" aria-label="Filter official examples"><option value="all">All examples</option><option value="planned">Full-plan + ABC</option><option value="direct">Direct generation</option><option value="cover">Covers / score edits</option><option value="downloaded">Downloaded locally</option></select>
+          <button id="refresh-official-examples" class="quiet-button" type="button">Refresh catalog</button>
+          <span id="official-example-count">Loading official catalog…</span>
+        </div>
+        <p id="official-example-status" class="guide-callout official-example-status">Connecting to the official YuE2 demo catalog. Reference packs are saved under <code>official-yue2-examples</code> in this project.</p>
+        <div id="guide-example-list" class="guide-example-list"></div>
+        <button id="show-more-official-examples" class="quiet-button show-more-examples" type="button" hidden>Show 24 more</button>
+        <p class="guide-caption">The catalog and files come directly from the <a href="https://map-yue2.github.io/" target="_blank" rel="noopener">official YuE2 demo</a>. “Get reference pack” saves the generated MP3, lyrics, style prompt, metadata, and—when provided—the raw ABC, score-rendering MP3, and SVG sheet pages. Source recordings linked by cover examples are not copied.</p>
+      </section>
+
+      <section id="guide-prompts" class="guide-section">
+        <div class="guide-section-head"><span class="step">G5</span><div><p class="eyebrow">COPYABLE RECIPES</p><h2>Prompts that stay in their lane</h2></div></div>
+        <div class="prompt-recipe-grid">
+          <article class="panel recipe-card"><header><h3>Sound direction formula</h3><button class="text-button copy-recipe" type="button" data-recipe="sound">Copy</button></header><pre id="recipe-sound">English, [specific genre/subgenre], [mood], [BPM or tempo], [core instruments], [vocal range/timbre/delivery], [production and mix]</pre><p>Put all sonic instructions here. Avoid artist names; describe the traits you actually want.</p></article>
+          <article class="panel recipe-card"><header><h3>Vocal direction</h3><button class="text-button copy-recipe" type="button" data-recipe="vocal">Copy</button></header><pre id="recipe-vocal">Warm low alto, close-mic and restrained in verses, clear consonants, stronger chest voice in chorus, light natural vibrato, sparse doubles, stacked chorus harmonies</pre><p>Change at least range/timbre, delivery, and harmony treatment when you want a meaningfully different singer.</p></article>
+          <article class="panel recipe-card"><header><h3>Lyric-writing request</h3><button class="text-button copy-recipe" type="button" data-recipe="lyrics">Copy</button></header><pre id="recipe-lyrics">Write an original [language] song about [specific situation] from [point of view]. Use concrete imagery and a concise repeated hook. Target [short/standard/long]. Return only singable lyrics using [Verse], [Pre-Chorus], [Chorus], [Bridge], and [Outro]. No production notes, chords, or artist imitation.</pre><p>The built-in Lyric Assistant already enforces a stricter version of this recipe.</p></article>
+          <article class="panel recipe-card"><header><h3>Revision request</h3><button class="text-button copy-recipe" type="button" data-recipe="revision">Copy</button></header><pre id="recipe-revision">Keep the chorus and point of view. Rewrite verse two with more concrete imagery, tighten each line for singing, remove filler and clichés, and return the complete revised song in the same section format.</pre><p>Name what must stay, what must change, and request the complete song rather than a patch.</p></article>
+        </div>
+        <div class="lyrics-rules panel">
+          <div><h3>Reliable lyric structure</h3><pre>[Intro]&#10;&#10;[Verse]&#10;Four to eight focused lines&#10;&#10;[Pre-Chorus]&#10;Build tension briefly&#10;&#10;[Chorus]&#10;Repeat the central hook&#10;&#10;[Verse]&#10;Develop the story&#10;&#10;[Bridge]&#10;Add contrast&#10;&#10;[Chorus]&#10;Repeat the hook&#10;&#10;[Outro]</pre></div>
+          <div><h3>Keep these out of lyrics</h3><ul><li>BPM, key, mix, instrument, or camera instructions</li><li>Markdown headings and explanatory paragraphs</li><li>Artist names or requests to imitate a copyrighted song</li><li>Long parenthetical stage directions likely to be sung aloud</li><li>Too many unrelated styles or conflicting vocal descriptions</li></ul><h3>Planning modes</h3><ul><li><b>Full:</b> original songs; generates melody and chords.</li><li><b>Melody:</b> supplied melody/cover; harmony remains flexible.</li><li><b>Direct:</b> faster experiments without a symbolic score.</li></ul></div>
+        </div>
+      </section>
+
+      <section id="guide-troubleshooting" class="guide-section">
+        <div class="guide-section-head"><span class="step">G6</span><div><p class="eyebrow">DIAGNOSE BY SYMPTOM</p><h2>When results feel too similar</h2></div></div>
+        <div class="trouble-grid">
+          <article class="panel"><h3>Same singer or melody</h3><p>Set Seed behavior to Random. Change the visible vocal range/timbre—not just mood—and remove a supplied ABC score if you do not intend to preserve melody.</p></article>
+          <article class="panel"><h3>Assistant “bleedover”</h3><p>There is no hidden assistant context in generation. Only clicking <b>Use in Compose</b> copies title, style, and lyrics. Check those visible boxes; the assistant direction is now visible and clearable too.</p></article>
+          <article class="panel"><h3>Muddy or confused result</h3><p>Use one primary genre, one secondary influence, a coherent instrument set, one vocal description, and a single production era. Contradictions weaken control.</p></article>
+          <article class="panel"><h3>Words or directions get sung</h3><p>Move every non-lyrical instruction to Sound direction. Keep lyrics to simple section headers and singable lines.</p></article>
+          <article class="panel"><h3>Need a fair comparison</h3><p>Switch to Fixed seed, keep lyrics and all other settings identical, then change exactly one style phrase or model profile.</p></article>
+          <article class="panel"><h3>Want better odds</h3><p>Generate several random seeds and keep the strongest. The official benchmark’s best-of-8 result explicitly selects among eight candidates.</p></article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <aside id="work-queue" class="work-queue panel" aria-label="Shared work queue">
+    <header id="queue-drag-handle" class="queue-drag-handle">
+      <div><span class="queue-grip" aria-hidden="true">⠿</span><div><p>SHARED WORK QUEUE</p><b id="queue-summary">Nothing waiting</b></div></div>
+      <button id="queue-collapse" type="button" aria-expanded="true" aria-label="Collapse work queue">−</button>
+    </header>
+    <div id="queue-body" class="queue-body">
+      <p class="queue-help">Drag waiting jobs to reorder them. The active job always finishes first.</p>
+      <div id="queue-active"></div>
+      <div id="queue-pending"></div>
+      <details id="queue-finished" class="queue-finished"><summary>Recent finished jobs</summary><div id="queue-finished-list"></div></details>
+      <div class="queue-footer"><button id="queue-clear-finished" class="text-button" type="button">Clear finished</button></div>
+    </div>
+  </aside>
+
+  <dialog id="info-dialog" class="info-dialog" aria-labelledby="info-title">
+    <div class="info-dialog-head"><span class="info-dialog-icon">i</span><button id="info-close" type="button" aria-label="Close setting information">×</button></div>
+    <h2 id="info-title">Setting information</h2>
+    <p id="info-body"></p>
+    <p id="info-tip" class="info-tip"></p>
+  </dialog>
+
+  <footer><span>Whiskerwave Studio · YuE2 on audio.cpp dev <code>6fbbee4</code></span><div class="footer-controls"><label class="theme-control" for="theme-select"><span>Theme</span><select id="theme-select" aria-label="Color theme"><option value="studio">Studio (default)</option><option value="midnight">Dark dark</option><option value="light">Light</option><option value="yotsuba">Yotsuba</option><option value="yotsuba-b">Yotsuba B</option><option value="futaba">Futaba</option><option value="burichan">Burichan</option></select></label><span>Local: <code>127.0.0.1:7865</code></span></div></footer>
+  <script type="module" src="/midi-player.js?v=2"></script>
+  <script src="/app.js?v=9"></script>
+</body>
+</html>

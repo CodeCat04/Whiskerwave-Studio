@@ -1,0 +1,11 @@
+* text=auto
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.py text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.svg text eol=lf
+*.wav binary
+*.sf3 binary
+
