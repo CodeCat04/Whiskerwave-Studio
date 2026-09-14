@@ -1,4 +1,5 @@
 # Whiskerwave Studio
+# Note when installing, it will have to build out/compile with CUDA. The terminal will go fast, it took me like 5 or so minutes. 
 
 Local-first AI music creation for Windows: YuE2 song generation through
 audio.cpp, Ollama-assisted songwriting, SheetSage2 transcription, ABC/MIDI
